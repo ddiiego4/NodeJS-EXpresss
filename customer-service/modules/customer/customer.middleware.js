@@ -10,21 +10,33 @@
     };
 
     var CustomerService = require('./customer.module')().CustomerService;
+    const { BadRequest } = require('../util/errors');
+
+
 
     function addCustomer(req, res, next) {
-
-        CustomerService.createCustomer(req.body)
+        const { firstName, lastName, email,phoneNumber,address,city,state,zipCode,country } = req.body;
+        try{
+            if (!firstName || !lastName) {
+                throw new BadRequest('Missing required fields: firstName or lastName');
+            }
+            CustomerService.createCustomer(req.body)
             .then(success)
             .catch(failure);
 
-        function success(data) {
-            req.response = data;
-            next();
+            function success(data) {
+                req.response = data;
+                next();
+            }
+        
+            function failure(error) {
+                next(error);
+            }
+        }catch(err){
+            next(err)
         }
 
-        function failure(error) {
-            next(error);
-        }
+        
 
     }
 
